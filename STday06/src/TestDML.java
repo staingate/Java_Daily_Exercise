@@ -1,11 +1,15 @@
 
 import java.sql.*;
+import java.util.Scanner;
 
 import javax.swing.text.DefaultEditorKit.InsertBreakAction;
 
 public class TestDML {
 	static ResultSet rs = null;
-
+	static Scanner scan = new Scanner(System.in);
+	static String stuName = null;
+	static int stuId;
+	static ResultSet temp;
 	/**
 	 * @param args
 	 */
@@ -18,15 +22,23 @@ public class TestDML {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection("jdbc:mysql://localhost/Class15?user=root&password=1234");
-			//pState = conn.prepareStatement("insert into students values(?, ?)");
-			//pState.setString(1, "李银河");
-			//pState.setInt(2, 5);
+			
 			
 			state = conn.createStatement();
-			//insert(state);
-			//search(state);
-			//update(state);
-			delete(state);
+			System.out.println("请选择增删改查中的一个功能：\n1、增加\n2、删除\n3、修改");
+			
+			int choice = scan.nextInt();
+			switch(choice) {
+			case 1:
+				insert(state);
+				break;
+			case 2:
+				delete(state);
+				break;
+			case 3:
+				update(state);
+				break;			
+			}
 			
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -38,48 +50,67 @@ public class TestDML {
 	}
 	
 	public static void insert(Statement stat) {
+		System.out.println("请输入需增加的姓名：");
+		stuName = scan.next();
+		System.out.println("请输入需增加的学号：");
+		stuId = scan.nextInt();
 		
 		try {
-			stat.executeUpdate("insert into students values ('罗永浩', 1)");
-			stat.executeUpdate("insert into students values ('罗军', 2)");
-			stat.executeUpdate("insert into students values ('廖连云', 3)");
-			stat.executeUpdate("insert into students values ('凌嘉俊', 4)");
-			stat.executeUpdate("insert into students values ('罗浩', 5)");
-			stat.executeUpdate("insert into students values ('吴飘', 6)");
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-	
-	public static void search(Statement stat) {
-		String sql = "select * from Students";
-		try {
-			rs = stat.executeQuery(sql);
-			while(rs.next()) {
-				System.out.println(rs.getInt("StuId") + ">>>" + rs.getString("StuName"));
+			temp = stat.executeQuery("select StuName from Students where StuId='" + stuId + "'");
+			if(temp.next() == true) {
+				System.out.println("添加失败！数据库已存在此条目，请下次输入正确学号");
+				System.exit(0);
+			} else {
+				stat.execute("insert into Students values('" + stuName + "', " + stuId + ")");
+				System.out.println("添加成功！");
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		
+		
+		
 	}
 	
+	
+	
 	public static void update(Statement stat) {
-		String sql = "update Students set StuName='罗林' where (StuId='1')";
+		System.out.println("请输入你要修改对象的学号：");
+		stuId = scan.nextInt();
 		try {
-			stat.execute(sql);
+			temp = stat.executeQuery("select StuName from Students where StuId='" + stuId + "'");
+			if(temp.next() == false) {
+				System.out.println("修改失败！数据库不存在此条目，请下次输入正确学号");
+				System.exit(0);
+			} else {
+				System.out.println("请输入你想修改成的姓名：");
+				stuName = scan.next();
+				stat.execute("update Students set StuName='" + stuName + "' where StuId='" + stuId + "'");
+				System.out.println("修改成功！");
+			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+
 	}
 
 	public static void delete(Statement stat) {
-		String sql = "delete from Students where StuId='3'";
+		System.out.println("请输入你要删除对象的学号：");
+		stuId = scan.nextInt();
 		try {
-			stat.execute(sql);
+			temp = stat.executeQuery("select StuName from Students where StuId='" + stuId + "'");
+			if(temp.next() == false) {
+				System.out.println("删除失败！数据库不存在此条目，请下次输入正确学号");
+				System.exit(0);
+			} else {
+				
+				stat.execute("delete from Students where StuId='" + stuId + "'");
+				System.out.println("删除成功！");
+			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
